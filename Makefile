@@ -1,7 +1,7 @@
 TARGET=batman_adv
 
 CC?=gcc
-CFLAGS?=-O3 -Wall -Werror
+CFLAGS?=-O3 -Wall -Werror -fPIC
 LIBTOOL?=libtool
 
 COLLECTD_PREFIX?=/usr
