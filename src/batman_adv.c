@@ -68,7 +68,6 @@ static int batman_read(void) {
       values[0].gauge = (gauge_t) last_seen;
       values[1].absolute = (absolute_t) quality;
       values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
-      sprintf(node_mac, "%llx", values[0].absolute);
       vl.values_len = 4;
       vl.time = measuring_time;
       sstrncpy(vl.host, hostname_g, sizeof(vl.host));
@@ -95,5 +94,5 @@ static int batman_read(void) {
 }
 
 void module_register(void) {
-  plugin_register_read("batman", batman_read);
+  plugin_register_read("batman_adv", batman_read);
 }
