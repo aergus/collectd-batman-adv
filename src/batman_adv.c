@@ -70,8 +70,9 @@ static int batman_read(void) {
         values[0].gauge = (gauge_t) last_seen;
         values[1].absolute = (absolute_t) quality;
         values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
-        vl.values_len = 4;
+        vl.values_len = 3;
         vl.time = measuring_time;
+        sprintf(node_mac, "%llu", blocks_to_llu(blocks));
         sstrncpy(vl.host, hostname_g, sizeof(vl.host));
         sstrncpy(vl.plugin, "batman_adv", sizeof(vl.plugin));
         sstrncpy(vl.type, "batman_adv_origt", sizeof(vl.type));
@@ -81,10 +82,10 @@ static int batman_read(void) {
 
         /* A day may come when we have to debug this plugin again.
          * printf("%llx\t%f\t%llu\t%llx\n",
-         *        blocks_to_llu(blocks),,
-         *        values[1].gauge,
-         *        values[2].absolute,
-         *        values[3].absolute);
+         *        blocks_to_llu(blocks),
+         *        values[0].gauge,
+         *        values[1].absolute,
+         *        values[2].absolute);
          */
       }
       else {
