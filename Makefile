@@ -5,8 +5,8 @@ CFLAGS?=-O3 -Wall -Werror
 LIBTOOL?=libtool
 
 COLLECTD_PREFIX?=/usr
-COLLECTD_HEADERS?=$(COLLECTD_PREFIX)/include/collectd/core
-LIBOCONFIG_HEADERS?=$(COLLECTD_PREFIX)/include/collectd/liboconfig
+COLLECTD_INCLUDE?=$(COLLECTD_PREFIX)/include/colectd
+COLLECTD_HEADERS?=$(COLLECTD_INCLUDE)/core
 
 all: $(TARGET).la
 
@@ -29,5 +29,5 @@ $(TARGET).la: build/$(TARGET).lo
 
 build/$(TARGET).lo: src/$(TARGET).c
 	$(LIBTOOL) --mode=compile $(CC) -DHAVE_CONFIG_H \
-		-I $(COLLECTD_HEADERS) -I $(LIBOCONFIG_HEADERS) \
+		-I $(COLLECTD_INCLUDE) -I $(COLLECTD_HEADERS) \
 		$(CFLAGS) -MD -MP -c -o $@ src/$(TARGET).c
