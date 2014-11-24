@@ -58,32 +58,38 @@ static int batman_read(void) {
        * We currently only collect information
        * from the former four fields.
        */ 
-      fscanf(batctl_out, "%x:%x:%x:%x:%x:%x %fs (%u) %x:%x:%x:%x:%x:%x",
-             blocks, blocks + 1, blocks + 2,
-             blocks + 3, blocks + 4, blocks + 5,
-             &last_seen,  &quality,
-             hop_blocks, hop_blocks + 1, hop_blocks + 2,
-             hop_blocks + 3, hop_blocks + 4, hop_blocks + 5);
+      if (fscanf(batctl_out,
+                 "%x:%x:%x:%x:%x:%x %fs (%u) %x:%x:%x:%x:%x:%x",
+                 blocks, blocks + 1, blocks + 2,
+                 blocks + 3, blocks + 4, blocks + 5,
+                 &last_seen,  &quality,
+                 hop_blocks, hop_blocks + 1, hop_blocks + 2,
+                 hop_blocks + 3, hop_blocks + 4, hop_blocks + 5) ==
+          14) {
 
-      values[0].gauge = (gauge_t) last_seen;
-      values[1].absolute = (absolute_t) quality;
-      values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
-      vl.values_len = 4;
-      vl.time = measuring_time;
-      sstrncpy(vl.host, hostname_g, sizeof(vl.host));
-      sstrncpy(vl.plugin, "batman_adv", sizeof(vl.plugin));
-      sstrncpy(vl.type, "batman_adv_origt", sizeof(vl.type));
-      sstrncpy(vl.type_instance, node_mac, sizeof(vl.type_instance));
-      vl.values = values;
-      plugin_dispatch_values(&vl);
+        values[0].gauge = (gauge_t) last_seen;
+        values[1].absolute = (absolute_t) quality;
+        values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
+        vl.values_len = 4;
+        vl.time = measuring_time;
+        sstrncpy(vl.host, hostname_g, sizeof(vl.host));
+        sstrncpy(vl.plugin, "batman_adv", sizeof(vl.plugin));
+        sstrncpy(vl.type, "batman_adv_origt", sizeof(vl.type));
+        sstrncpy(vl.type_instance, node_mac, sizeof(vl.type_instance));
+        vl.values = values;
+        plugin_dispatch_values(&vl);
 
-      /* A day may come when we have to debug this plugin again.
-       * printf("%llx\t%f\t%llu\t%llx\n",
-       *        blocks_to_llu(blocks),,
-       *        values[1].gauge,
-       *        values[2].absolute,
-       *        values[3].absolute);
-       */
+        /* A day may come when we have to debug this plugin again.
+         * printf("%llx\t%f\t%llu\t%llx\n",
+         *        blocks_to_llu(blocks),,
+         *        values[1].gauge,
+         *        values[2].absolute,
+         *        values[3].absolute);
+         */
+      }
+      else {
+        return -1;
+      }
     }
   }
   else {
