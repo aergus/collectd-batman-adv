@@ -1,2 +1,20 @@
 a batman-adv plugin for collectd
 
+
+# Installation
+
+`make install` should work.
+
+collectd is assumed to be installed with prefix /usr, but you can set
+the `COLLECTD_PREFIX` environment variable to change that.
+
+
+# Configuration
+
+You should add `LoadPlugin batman_adv` to your collectd configuration
+file and the following line to your types.db:
+
+`batman_adv_origt		seen:GAUGE:0:U, quality:ABSOLUTE:0:255, hop:ABSOLUTE:0:281474976710655`
+
+It is currently expected that `batctl o` can be run by collectd.
+
