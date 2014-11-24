@@ -5,7 +5,7 @@ CFLAGS?=-O3 -Wall -Werror
 LIBTOOL?=libtool
 
 COLLECTD_PREFIX?=/usr
-COLLECTD_INCLUDE?=$(COLLECTD_PREFIX)/include/colectd
+COLLECTD_INCLUDE?=$(COLLECTD_PREFIX)/include/collectd
 COLLECTD_HEADERS?=$(COLLECTD_INCLUDE)/core
 
 all: $(TARGET).la
