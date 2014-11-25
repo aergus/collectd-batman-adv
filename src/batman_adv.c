@@ -72,7 +72,7 @@ static int batman_read(void) {
         values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
         vl.values_len = 3;
         vl.time = measuring_time;
-        sprintf(node_mac, "%llu", blocks_to_llu(blocks));
+        sprintf(node_mac, "%llx", blocks_to_llu(blocks));
         sstrncpy(vl.host, hostname_g, sizeof(vl.host));
         sstrncpy(vl.plugin, "batman_adv", sizeof(vl.plugin));
         sstrncpy(vl.type, "batman_adv_origt", sizeof(vl.type));
