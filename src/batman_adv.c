@@ -92,6 +92,9 @@ static int batman_read(void) {
         return -1;
       }
     }
+    if (pclose(batctl_out) == -1) {
+      return -1;
+    }
   }
   else {
     return -1;
