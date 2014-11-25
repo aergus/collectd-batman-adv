@@ -44,7 +44,7 @@ static int batman_read(void) {
     unsigned quality;
     unsigned hop_blocks[6];
 
-    cdtime_t measuring_time = cdtime();
+    time_t measuring_time = time(NULL);
 
     /* We are not interested in the first two lines of the output. */
     first_of_next_line(batctl_out);
