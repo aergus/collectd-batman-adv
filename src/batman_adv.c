@@ -13,6 +13,12 @@
 
 #define BATCTL_CMD "batctl o"
 
+static void batman_log(int severity,
+                       const char *message,
+                       user_data_t *ud) {
+  printf ("batman_adv (%i): %s\n", severity, message);
+}
+
 /* skips all characters until the first character of
  * the next line and return that character
  */
@@ -89,14 +95,19 @@ static int batman_read(void) {
          */
       }
       else {
+        batman_log(LOG_WARNING,
+                   "failed to parse a line of the originator table",
+                   NULL);
         return -1;
       }
     }
     if (pclose(batctl_out) == -1) {
+      batman_log(LOG_WARNING, "failed close pipe stream", NULL);
       return -1;
     }
   }
   else {
+    batman_log(LOG_WARNING, "failed to open pipe stream", NULL);
     return -1;
   }
 
@@ -104,5 +115,6 @@ static int batman_read(void) {
 }
 
 void module_register(void) {
+  plugin_register_log("batman_adv", batman_log, /* user data = */ NULL);
   plugin_register_read("batman_adv", batman_read);
 }
