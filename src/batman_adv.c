@@ -56,7 +56,9 @@ static int batman_read(void) {
     first_of_next_line(batctl_out);
     while ((c = first_of_next_line(batctl_out)) != EOF) {
       value_t values[3];
-      value_list_t vl = VALUE_LIST_INIT;
+      value_list_t vl[3] = {VALUE_LIST_INIT,
+                            VALUE_LIST_INIT,
+                            VALUE_LIST_INIT};
 
       /* Each other line contains the fields
        * originator, last seen, (#/255), next hop,
@@ -72,19 +74,26 @@ static int batman_read(void) {
                  hop_blocks, hop_blocks + 1, hop_blocks + 2,
                  hop_blocks + 3, hop_blocks + 4, hop_blocks + 5) ==
           14) {
+        int i;
 
         values[0].gauge = (gauge_t) last_seen;
+        sstrncpy(vl[0].type, "origt_seen", sizeof(vl[0].type));
         values[1].absolute = (absolute_t) quality;
+        sstrncpy(vl[1].type, "origt_quality", sizeof(vl[1].type));
         values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
-        vl.values_len = 3;
-        vl.time = measuring_time;
+        sstrncpy(vl[2].type, "origt_hop", sizeof(vl[2].type));
         sprintf(node_mac, "%llx", blocks_to_llu(blocks));
-        sstrncpy(vl.host, hostname_g, sizeof(vl.host));
-        sstrncpy(vl.plugin, "batman_adv", sizeof(vl.plugin));
-        sstrncpy(vl.type, "batman_adv_origt", sizeof(vl.type));
-        sstrncpy(vl.type_instance, node_mac, sizeof(vl.type_instance));
-        vl.values = values;
-        plugin_dispatch_values(&vl);
+        for (i = 0; i < 3; i++) {
+          vl[i].values_len = 1;
+          vl[i].time = measuring_time;
+          sstrncpy(vl[i].host, hostname_g, sizeof(vl[i].host));
+          sstrncpy(vl[i].plugin, "batman_adv", sizeof(vl[i].plugin));
+          sstrncpy(vl[i].plugin_instance,
+                   node_mac,
+                   sizeof(vl[i].plugin_instance));
+          vl[i].values = values + i;
+          plugin_dispatch_values(vl + i);
+        }
 
         /* A day may come when we have to debug this plugin again.
          * printf("%llx\t%f\t%llu\t%llx\n",

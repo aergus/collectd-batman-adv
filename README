@@ -12,9 +12,13 @@ the `COLLECTD_PREFIX` environment variable to change that.
 # Configuration
 
 You should add `LoadPlugin batman_adv` to your collectd configuration
-file and the following line to your types.db:
+file and the following three lines to your types.db:
 
-`batman_adv_origt		seen:GAUGE:0:U, quality:ABSOLUTE:0:255, hop:ABSOLUTE:0:281474976710655`
+```
+origt_hop		value:ABSOLUTE:0:281474976710655
+origt_quality		value:ABSOLUTE:0:255
+origt_seen		value:GAUGE:0:U
+```
 
 It is currently expected that `batctl o` can be run by collectd.
 
