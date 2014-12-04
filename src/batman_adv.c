@@ -103,7 +103,12 @@ static int batman_read(void) {
     }
     if (pclose(batctl_out) == -1) {
       batman_log(LOG_WARNING, "failed close pipe stream", NULL);
-      return -1;
+      /* pclose tends to "fail" with errno ECHILD, but it seems
+       * to be safe to ignore the result of pclose. See also
+       * https://www.gnu.org/software/libc/manual/html_mono/
+       * libc.html#Pipe-to-a-Subprocess
+       * return -1;
+       */
     }
   }
   else {
