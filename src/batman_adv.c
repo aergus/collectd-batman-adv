@@ -151,8 +151,14 @@ static int batman_read(void) {
          }
         }
         if (values[2].gauge == (gauge_t) 0.5) {
-          add_node(blocks_llu, hop_llu);
-          values[2].gauge = (gauge_t) 1.0;
+          if (add_node(blocks_llu, hop_llu) == 0) {
+            values[2].gauge = (gauge_t) 1.0;
+          }
+          else {
+            batman_log(LOG_WARNING,
+                       "failed to enlarge the array of nodes",
+                       NULL);
+          }
         }
 
         sprintf(node_mac, "%llx", blocks_llu);
