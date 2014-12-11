@@ -11,7 +11,59 @@
 #include <stdlib.h>
 #include <time.h>
 
+#define INIT_SIZE 100
+#define ENLARGE(x) ((3*(x))/2)
+
 #define BATCTL_CMD "batctl o"
+
+static long long unsigned *nodes, *hops;
+static size_t nodes_size, node_count;
+
+static int batman_init(void) {
+  if ((nodes = malloc(INIT_SIZE * sizeof(long long unsigned))) !=
+      NULL &&
+      (hops = malloc(INIT_SIZE * sizeof(long long unsigned))) !=
+      NULL) {
+    nodes_size = INIT_SIZE;
+    node_count = 0;
+    return 0;
+  }
+  else {
+    return -1;
+  }
+}
+
+static int batman_shutdown(void) {
+  free(nodes);
+  free(hops);
+  return 0;
+}
+
+static int add_node(long long unsigned node, long long unsigned hop) {
+  if (node_count < nodes_size) {
+    nodes[node_count] = node;
+    hops[node_count] = hop;
+    node_count++;
+    return 0;
+  }
+  else {
+    size_t new_size = ENLARGE(nodes_size);
+    if ((nodes =
+         realloc(nodes, new_size * sizeof(long long unsigned))) !=
+        NULL &&
+        (hops = realloc(hops, new_size * sizeof(long long unsigned))) !=
+        NULL) {
+      nodes_size = new_size;
+      nodes[node_count] = node;
+      hops[node_count] = hop;
+      node_count++;
+      return 0;
+    }
+    else {
+      return -1;
+    }
+  }
+}
 
 static void batman_log(int severity,
                        const char *message,
@@ -74,15 +126,36 @@ static int batman_read(void) {
                  hop_blocks, hop_blocks + 1, hop_blocks + 2,
                  hop_blocks + 3, hop_blocks + 4, hop_blocks + 5) ==
           14) {
-        int i;
+        size_t i;
+        long long unsigned blocks_llu = blocks_to_llu(blocks),
+                           hop_llu = blocks_to_llu(hop_blocks);
 
         values[0].gauge = (gauge_t) last_seen;
         sstrncpy(vl[0].type, "origt_seen", sizeof(vl[0].type));
         values[1].absolute = (absolute_t) quality;
         sstrncpy(vl[1].type, "origt_quality", sizeof(vl[1].type));
-        values[2].absolute = (absolute_t) blocks_to_llu(hop_blocks);
+
         sstrncpy(vl[2].type, "origt_hop", sizeof(vl[2].type));
-        sprintf(node_mac, "%llx", blocks_to_llu(blocks));
+        values[2].gauge = (gauge_t) 0.5;
+        for (i = 0; i < node_count; i++) {
+          if (nodes[i] == blocks_llu) {
+            if (hops[i] == hop_llu) {
+              values[2].gauge = (gauge_t) 1.0;
+              break;
+            }
+            else {
+              hops[i] = hop_llu;
+              values[2].gauge = (gauge_t) 0.0;
+              break;
+            }
+         }
+        }
+        if (values[2].gauge == (gauge_t) 0.5) {
+          add_node(blocks_llu, hop_llu);
+          values[2].gauge = (gauge_t) 1.0;
+        }
+
+        sprintf(node_mac, "%llx", blocks_llu);
         for (i = 0; i < 3; i++) {
           vl[i].values_len = 1;
           vl[i].time = measuring_time;
@@ -96,11 +169,11 @@ static int batman_read(void) {
         }
 
         /* A day may come when we have to debug this plugin again.
-         * printf("%llx\t%f\t%llu\t%llx\n",
+         * printf("%llx\t%f\t%llx\t%f\n",
          *        blocks_to_llu(blocks),
          *        values[0].gauge,
          *        values[1].absolute,
-         *        values[2].absolute);
+         *        values[2].gauge);
          */
       }
       else {
@@ -129,6 +202,8 @@ static int batman_read(void) {
 }
 
 void module_register(void) {
+  plugin_register_init("batman_adv", batman_init);
+  plugin_register_shutdown("batman_adv", batman_shutdown);
   plugin_register_log("batman_adv", batman_log, /* user data = */ NULL);
   plugin_register_read("batman_adv", batman_read);
 }

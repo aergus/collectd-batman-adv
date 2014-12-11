@@ -15,7 +15,7 @@ You should add `LoadPlugin batman_adv` to your collectd configuration
 file and the following three lines to your types.db:
 
 ```
-origt_hop		value:ABSOLUTE:0:281474976710655
+origt_hop		value:GAUGE:0:1
 origt_quality		value:ABSOLUTE:0:255
 origt_seen		value:GAUGE:0:U
 ```
