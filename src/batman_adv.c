@@ -167,9 +167,9 @@ static int batman_read(void) {
           vl[i].time = measuring_time;
           sstrncpy(vl[i].host, hostname_g, sizeof(vl[i].host));
           sstrncpy(vl[i].plugin, "batman_adv", sizeof(vl[i].plugin));
-          sstrncpy(vl[i].plugin_instance,
+          sstrncpy(vl[i].type_instance,
                    node_mac,
-                   sizeof(vl[i].plugin_instance));
+                   sizeof(vl[i].type_instance));
           vl[i].values = values + i;
           plugin_dispatch_values(vl + i);
         }
